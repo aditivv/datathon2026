@@ -7,7 +7,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from model import JobPredictor
 import joblib
 
-df = pd.read_parquet("../data/train-00000-of-00002.parquet")
+df = pd.read_parquet("../data/train.parquet")
 df["combined"] = df["resume"] + " [SEP] " + df["jd"]
 
 le = LabelEncoder()
