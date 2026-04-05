@@ -16,7 +16,9 @@ const transporter = nodemailer.createTransport({
 });
 
 app.post("/send-results", async (req, res) => {
-  const { email, verdict, bars } = req.body;
+  console.log("Received body:", JSON.stringify(req.body));
+  const { email, verdict } = req.body;
+  const bars = verdict.bars;
 
   const barLabels = ["Skills Match", "Experience Level", "Domain Alignment", "Keywords"];
   const verdictColors = { "Good Fit": "#00E5A0", "Potential Fit": "#FFB830", "No Fit": "#FF4D6A" };

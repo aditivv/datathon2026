@@ -32,7 +32,7 @@ model = JobPredictor(input_size=X_train.shape[1])
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 loss_fn = nn.CrossEntropyLoss()
 
-EPOCHS     = 50
+EPOCHS     = 100
 BATCH_SIZE = 64   # ← only 64 rows processed at a time
 
 for epoch in range(EPOCHS):
