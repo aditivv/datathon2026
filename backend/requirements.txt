@@ -1,0 +1,11 @@
+torch
+pandas
+scikit-learn
+joblib
+fastapi
+uvicorn
+python-multipart
+PyPDF2
+requests
+beautifulsoup4
+pyarrow

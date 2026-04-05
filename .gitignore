@@ -21,3 +21,9 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# large model/data files - don't push these to GitHub
+backend/model.pth
+backend/vectorizer.pkl
+backend/label_encoder.pkl
+data/
