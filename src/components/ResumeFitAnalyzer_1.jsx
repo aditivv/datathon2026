@@ -57,81 +57,77 @@ function Spinner({ color }) {
 }
 
 // ── Resume Tab ──────────────────────────────────────────────────────────────
-function ResumeTab({ resume, setResume }) {
+function ResumeTab({ resumeFile, setResumeFile }) {
   const [dragOver, setDragOver] = useState(false);
-  const [fileName, setFileName] = useState(null);
   const fileRef = useRef();
 
-  const readFile = (file) => {
+  const handleFile = (file) => {
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => { setResume(e.target.result); setFileName(file.name); };
-    reader.readAsText(file);
+    setResumeFile(file);
   };
 
   const handleDrop = (e) => {
     e.preventDefault(); setDragOver(false);
     const file = e.dataTransfer.files[0];
-    if (file) readFile(file);
+    if (file) handleFile(file);
   };
 
   const clearFile = () => {
-    setFileName(null); setResume("");
+    setResumeFile(null);
     if (fileRef.current) fileRef.current.value = "";
   };
 
   return (
     <div style={{ padding: "24px 28px 20px" }}>
-      {/* Drop zone */}
       <div
         onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
         onDragLeave={() => setDragOver(false)}
         onDrop={handleDrop}
-        onClick={() => !fileName && fileRef.current?.click()}
+        onClick={() => !resumeFile && fileRef.current?.click()}
         style={{
           border: `1.5px dashed ${dragOver ? "#6366F1" : "rgba(255,255,255,0.12)"}`,
-          borderRadius: 12, padding: "18px 20px",
+          borderRadius: 12, padding: "40px 20px",
           background: dragOver ? "rgba(99,102,241,0.06)" : "rgba(255,255,255,0.02)",
-          cursor: fileName ? "default" : "pointer",
-          transition: "all 0.2s", marginBottom: 16,
+          cursor: resumeFile ? "default" : "pointer",
+          transition: "all 0.2s",
           display: "flex", alignItems: "center", gap: 14,
         }}
       >
-        <input ref={fileRef} type="file" accept=".txt,.pdf,.doc,.docx"
+        <input ref={fileRef} type="file" accept=".pdf"
           style={{ display: "none" }}
-          onChange={(e) => readFile(e.target.files[0])} />
+          onChange={(e) => handleFile(e.target.files[0])} />
 
         <div style={{
           width: 40, height: 40, borderRadius: 10, flexShrink: 0,
-          background: fileName ? "rgba(0,229,160,0.1)" : "rgba(99,102,241,0.1)",
-          border: `1px solid ${fileName ? "rgba(0,229,160,0.25)" : "rgba(99,102,241,0.25)"}`,
+          background: resumeFile ? "rgba(0,229,160,0.1)" : "rgba(99,102,241,0.1)",
+          border: `1px solid ${resumeFile ? "rgba(0,229,160,0.25)" : "rgba(99,102,241,0.25)"}`,
           display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 18, color: fileName ? "#00E5A0" : "#A78BFA"
+          fontSize: 18, color: resumeFile ? "#00E5A0" : "#A78BFA"
         }}>
-          {fileName ? "✓" : "↑"}
+          {resumeFile ? "✓" : "↑"}
         </div>
 
         <div style={{ flex: 1, minWidth: 0 }}>
-          {fileName ? (
+          {resumeFile ? (
             <>
               <div style={{ fontSize: 13, fontWeight: 500, color: "#00E5A0", marginBottom: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                {fileName}
+                {resumeFile.name}
               </div>
-              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", fontFamily: "'Space Mono', monospace" }}>FILE LOADED</div>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", fontFamily: "'Space Mono', monospace" }}>PDF LOADED</div>
             </>
           ) : (
             <>
               <div style={{ fontSize: 13, fontWeight: 500, color: "rgba(255,255,255,0.7)", marginBottom: 2 }}>
-                Drop your resume file here
+                Drop your resume PDF here
               </div>
               <div style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", fontFamily: "'Space Mono', monospace" }}>
-                .TXT · .PDF · .DOC · .DOCX · CLICK TO BROWSE
+                .PDF ONLY · CLICK TO BROWSE
               </div>
             </>
           )}
         </div>
 
-        {fileName && (
+        {resumeFile && (
           <button onClick={(e) => { e.stopPropagation(); clearFile(); }} style={{
             background: "rgba(255,77,106,0.1)", border: "1px solid rgba(255,77,106,0.25)",
             color: "#FF4D6A", borderRadius: 6, padding: "4px 10px", fontSize: 11,
@@ -139,163 +135,100 @@ function ResumeTab({ resume, setResume }) {
           }}>REMOVE</button>
         )}
       </div>
-
-      {/* Divider */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
-        <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.07)" }} />
-        <span style={{ fontSize: 11, color: "rgba(255,255,255,0.25)", fontFamily: "'Space Mono', monospace", letterSpacing: "0.1em" }}>OR PASTE TEXT</span>
-        <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.07)" }} />
-      </div>
-
-      {/* Textarea */}
-      <div style={{ position: "relative" }}>
-        <textarea value={resume}
-          onChange={(e) => { setResume(e.target.value); if (!e.target.value) setFileName(null); }}
-          placeholder="Paste your resume text here…" rows={7}
-          style={{
-            width: "100%", padding: "16px",
-            background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)",
-            borderRadius: 10, color: "#fff", fontSize: 13, lineHeight: 1.8,
-            fontFamily: "'DM Sans', sans-serif", fontWeight: 300
-          }}
-        />
-        <button onClick={() => { setResume(SAMPLE_RESUME); setFileName(null); }} style={{
-          position: "absolute", bottom: 12, right: 12,
-          background: "rgba(99,102,241,0.15)", border: "1px solid rgba(99,102,241,0.3)",
-          color: "#A78BFA", borderRadius: 6, padding: "5px 12px",
-          fontSize: 11, cursor: "pointer", fontFamily: "'Space Mono', monospace", letterSpacing: "0.06em"
-        }}>USE SAMPLE</button>
-      </div>
     </div>
   );
 }
 
 // ── Job Description Tab ─────────────────────────────────────────────────────
-function JDTab({ jd, setJd }) {
-  const [url, setUrl] = useState("");
-  const [urlStatus, setUrlStatus] = useState("idle"); // idle | loading | done | error
-
-  const handleFetch = () => {
-    if (!url.trim()) return;
-    setUrlStatus("loading");
-    // Mock — replace with real fetch when backend ready
-    setTimeout(() => {
-      setJd(`[Fetched from: ${url}]\n\n` + SAMPLE_JD);
-      setUrlStatus("done");
-    }, 1400);
-  };
-
-  const clearUrl = () => { setUrl(""); setUrlStatus("idle"); setJd(""); };
-
-  const borderColor = urlStatus === "done" ? "rgba(0,229,160,0.3)" : urlStatus === "error" ? "rgba(255,77,106,0.3)" : "rgba(255,255,255,0.1)";
+function JDTab({ jobUrl, setJobUrl }) {
+  const borderColor = jobUrl.trim()
+    ? "rgba(0,229,160,0.3)"
+    : "rgba(255,255,255,0.1)";
 
   return (
     <div style={{ padding: "24px 28px 20px" }}>
-      {/* URL row */}
-      <div style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", fontFamily: "'Space Mono', monospace", letterSpacing: "0.12em", marginBottom: 10 }}>
-          PASTE JOB POSTING URL
-        </div>
-        <div style={{ display: "flex", gap: 8 }}>
-          <div style={{ flex: 1, position: "relative" }}>
-            <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", fontSize: 14, color: "rgba(255,255,255,0.2)", pointerEvents: "none" }}>🔗</span>
-            <input type="url" value={url}
-              onChange={(e) => { setUrl(e.target.value); setUrlStatus("idle"); }}
-              onKeyDown={(e) => e.key === "Enter" && handleFetch()}
-              placeholder="https://jobs.example.com/posting/..."
-              style={{
-                width: "100%", padding: "11px 14px 11px 38px",
-                background: "rgba(255,255,255,0.03)", border: `1px solid ${borderColor}`,
-                borderRadius: 10, color: "#fff", fontSize: 13,
-                fontFamily: "'DM Sans', sans-serif", outline: "none", transition: "border-color 0.2s"
-              }}
-            />
-          </div>
-          <button
-            onClick={urlStatus === "done" ? clearUrl : handleFetch}
-            disabled={urlStatus === "loading" || (!url.trim() && urlStatus !== "done")}
-            style={{
-              padding: "11px 20px", borderRadius: 10, fontSize: 12, fontWeight: 600,
-              fontFamily: "'Space Mono', monospace", letterSpacing: "0.06em",
-              cursor: urlStatus === "loading" ? "wait" : "pointer",
-              background: urlStatus === "done" ? "rgba(255,77,106,0.12)" : "rgba(99,102,241,0.2)",
-              border: `1px solid ${urlStatus === "done" ? "rgba(255,77,106,0.3)" : "rgba(99,102,241,0.35)"}`,
-              color: urlStatus === "done" ? "#FF4D6A" : "#A78BFA",
-              transition: "all 0.2s", whiteSpace: "nowrap",
-              opacity: (!url.trim() && urlStatus === "idle") ? 0.45 : 1
-            }}
-          >
-            {urlStatus === "loading" ? "···" : urlStatus === "done" ? "CLEAR" : "FETCH"}
-          </button>
-        </div>
-
-        {urlStatus === "done" && (
-          <div style={{ marginTop: 8, fontSize: 11, color: "#00E5A0", fontFamily: "'Space Mono', monospace", display: "flex", alignItems: "center", gap: 6 }}>
-            <span>✓</span> Job description loaded from URL
-          </div>
-        )}
-        {urlStatus === "error" && (
-          <div style={{ marginTop: 8, fontSize: 11, color: "#FF4D6A", fontFamily: "'Space Mono', monospace" }}>
-            Could not fetch URL — paste the text below instead.
-          </div>
-        )}
+      <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", fontFamily: "'Space Mono', monospace", letterSpacing: "0.12em", marginBottom: 10 }}>
+        PASTE JOB POSTING URL
       </div>
-
-      {/* Divider */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
-        <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.07)" }} />
-        <span style={{ fontSize: 11, color: "rgba(255,255,255,0.25)", fontFamily: "'Space Mono', monospace", letterSpacing: "0.1em" }}>OR PASTE TEXT</span>
-        <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.07)" }} />
-      </div>
-
-      {/* Textarea */}
       <div style={{ position: "relative" }}>
-        <textarea value={jd} onChange={(e) => setJd(e.target.value)}
-          placeholder="Paste the job description here…" rows={7}
+        <span style={{
+          position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)",
+          fontSize: 14, color: "rgba(255,255,255,0.2)", pointerEvents: "none"
+        }}>🔗</span>
+        <input
+          type="url"
+          value={jobUrl}
+          onChange={(e) => setJobUrl(e.target.value)}
+          placeholder="https://jobs.example.com/posting/..."
           style={{
-            width: "100%", padding: "16px",
-            background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)",
-            borderRadius: 10, color: "#fff", fontSize: 13, lineHeight: 1.8,
-            fontFamily: "'DM Sans', sans-serif", fontWeight: 300
+            width: "100%", padding: "14px 14px 14px 38px",
+            background: "rgba(255,255,255,0.03)", border: `1px solid ${borderColor}`,
+            borderRadius: 10, color: "#fff", fontSize: 13,
+            fontFamily: "'DM Sans', sans-serif", outline: "none",
+            transition: "border-color 0.2s"
           }}
         />
-        <button onClick={() => setJd(SAMPLE_JD)} style={{
-          position: "absolute", bottom: 12, right: 12,
-          background: "rgba(99,102,241,0.15)", border: "1px solid rgba(99,102,241,0.3)",
-          color: "#A78BFA", borderRadius: 6, padding: "5px 12px",
-          fontSize: 11, cursor: "pointer", fontFamily: "'Space Mono', monospace", letterSpacing: "0.06em"
-        }}>USE SAMPLE</button>
       </div>
+      {jobUrl.trim() && (
+        <div style={{ marginTop: 8, fontSize: 11, color: "#00E5A0", fontFamily: "'Space Mono', monospace", display: "flex", alignItems: "center", gap: 6 }}>
+          <span>✓</span> URL entered
+        </div>
+      )}
     </div>
   );
 }
 
 // ── Main ────────────────────────────────────────────────────────────────────
 export default function App() {
-  const [resume, setResume] = useState("");
-  const [jd, setJd] = useState("");
+  const [resumeFile, setResumeFile] = useState(null);
+  const [jobUrl, setJobUrl] = useState("");
   const [stage, setStage] = useState("idle");
   const [verdict, setVerdict] = useState(null);
   const [activeTab, setActiveTab] = useState("resume");
   const resultRef = useRef(null);
 
-  const canAnalyze = resume.trim().length > 30 && jd.trim().length > 30;
+  const canAnalyze = resumeFile !== null && jobUrl.trim().length > 10;
 
-  const handleAnalyze = () => {
+  const handleAnalyze = async () => {
     if (!canAnalyze) return;
     setStage("loading");
-    setTimeout(() => {
-      const keys = ["good", "potential", "no"];
-      setVerdict(keys[Math.floor(Math.random() * keys.length)]);
-      setStage("result");
-      setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
-    }, 2200);
-  };
+
+    try {
+        const formData = new FormData();
+        formData.append("resume", resumeFile);   // actual PDF file object
+        formData.append("job_url", jobUrl);       // job posting URL string
+
+        const response = await fetch("http://localhost:8000/predict", {
+            method: "POST",
+            body: formData,
+        });
+
+        const data = await response.json();
+
+        if (data.error) {
+            alert(data.error);
+            setStage("idle");
+            return;
+        }
+
+        if (data.prediction === "Good Fit") setVerdict("good");
+        else if (data.prediction === "Potential Fit") setVerdict("potential");
+        else setVerdict("no");
+
+        setStage("result");
+        setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+
+    } catch (error) {
+        console.error("API call failed:", error);
+        alert("Could not connect to the backend. Make sure the API is running on port 8000.");
+        setStage("idle");
+    }
+};
 
   const handleReset = () => {
     setStage("idle"); setVerdict(null);
-    setResume(""); setJd(""); setActiveTab("resume");
-  };
+    setResumeFile(null); setJobUrl(""); setActiveTab("resume");
+};
 
   const v = verdict ? VERDICTS[verdict] : null;
 
@@ -371,7 +304,7 @@ export default function App() {
           <div style={{ display: "flex", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
             {[{ key: "resume", label: "Resume" }, { key: "jd", label: "Job Description" }].map(tab => {
               const active = activeTab === tab.key;
-              const filled = tab.key === "resume" ? resume.length > 30 : jd.length > 30;
+              const filled = tab.key === "resume" ? resumeFile !== null : jobUrl.trim().length > 10;
               return (
                 <button key={tab.key}
                   onClick={() => setActiveTab(tab.key)}
@@ -397,9 +330,9 @@ export default function App() {
 
           {/* Content */}
           {activeTab === "resume"
-            ? <ResumeTab resume={resume} setResume={setResume} />
-            : <JDTab jd={jd} setJd={setJd} />
-          }
+            ? <ResumeTab resumeFile={resumeFile} setResumeFile={setResumeFile} />
+            : <JDTab jobUrl={jobUrl} setJobUrl={setJobUrl} />
+        }
 
           {/* Footer */}
           <div style={{
@@ -407,7 +340,7 @@ export default function App() {
             justifyContent: "space-between", borderTop: "1px solid rgba(255,255,255,0.05)", flexWrap: "wrap", gap: 12
           }}>
             <div style={{ display: "flex", gap: 20 }}>
-              {[{ label: "Resume", filled: resume.length > 30 }, { label: "Job Description", filled: jd.length > 30 }].map(item => (
+              {[{ label: "Resume", filled: resumeFile !== null }, { label: "Job Description", filled: jobUrl.trim().length > 10 }].map(item => (
                 <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "rgba(255,255,255,0.35)" }}>
                   <div style={{
                     width: 16, height: 16, borderRadius: 4,

@@ -54,39 +54,33 @@ def scrape_job_description(url: str) -> str:
 # THE MAIN ENDPOINT; takes in the pdf and job url and returns prediction and confidence scores
 @app.post("/predict")
 async def predict(
-    resume: UploadFile = File(...), 
-    job_url: str = Form(...) 
+    resume: UploadFile = File(...),
+    job_url: str = Form(...)
 ):
-    # read the uploaded PDF bytes and extract text
+    # extract text from PDF
     pdf_bytes = await resume.read()
     resume_text = extract_text_from_pdf(pdf_bytes)
 
     if not resume_text:
-        return {"error": "Could not extract text from PDF. Make sure it is not a scanned image."}
+        return {"error": "Could not extract text from the PDF."}
 
-    # scrape the job description from the URL
+    # scrape job description from URL
     job_text = scrape_job_description(job_url)
 
     if not job_text:
-        return {"error": "Could not retrieve job description from that URL. Try a different link."}
+        return {"error": "Could not retrieve job description from that URL."}
 
-    # combine them exactly like we did in training
+    # combine + predict
     combined = resume_text + " [SEP] " + job_text
-
-    # convert to TF-IDF numbers using the saved vectorizer
     X = vectorizer.transform([combined]).toarray()
     X_t = torch.FloatTensor(X)
 
-    # run through the model
     with torch.no_grad():
         output = model(X_t)
         predicted_class = output.argmax(dim=1).item()
         probabilities = torch.softmax(output, dim=1)[0].tolist()
 
-    # convert number back to label
     predicted_label = le.inverse_transform([predicted_class])[0]
-
-    # build a confidence score for each class
     confidence_scores = {
         le.classes_[i]: round(probabilities[i] * 100, 1)
         for i in range(len(le.classes_))
